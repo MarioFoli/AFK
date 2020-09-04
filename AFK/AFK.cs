@@ -163,7 +163,7 @@ namespace AFK
                                         player.TSPlayer.SendErrorMessage("You will be kicked when you're AFK for " + AFKConfig.afkkicktime + "secs. You have been AFK for " + player.afkkick + " secs.");
                                     else if (player.afkkick >= AFKConfig.afkkicktime)
                                     {
-                                        TShock.Utils.Kick(player.TSPlayer, "for being AFK for " + player.afkkick + " seconds.", true, false, "Server");
+                                        player.TSPlayer.Kick("for being AFK for " + player.afkkick + " seconds.", true, false, "Server", true);
                                         return;
                                     }
                                 }
@@ -184,7 +184,7 @@ namespace AFK
                                         {
                                             if (!player.TSPlayer.IsLoggedIn)
                                             {
-                                                TShock.Utils.Kick(player.TSPlayer, "for being AFK.", true, false, "Server");
+                                                player.TSPlayer.Kick("for being AFK.", true, false, "Server", true);
                                                 return;
                                             }
                                             player.backtileX = player.TSPlayer.TileX;
@@ -193,7 +193,7 @@ namespace AFK
 
                                             if (afkwarp == null)
                                             {
-                                                TShock.Utils.Kick(player.TSPlayer, "for being AFK.", true, false, "Server");
+                                                player.TSPlayer.Kick("for being AFK.", true, false, "Server", true);
                                                 TShock.Log.ConsoleError("AFK Plugin: Warp \"afk\" is not defined.");
                                                 return;
                                             }
