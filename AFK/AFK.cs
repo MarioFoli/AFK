@@ -23,7 +23,7 @@ namespace AFK
         }
         public override string Author
         {
-            get { return "DarkunderdoG"; }
+            get { return "DarkunderdoG - Maintained by Bippity"; }
         }
         public override string Description
         {
@@ -68,17 +68,42 @@ namespace AFK
         public void OnInitialize()
         {
             SetupConfig();
-            Commands.ChatCommands.Add(new Command("afk.cfg", AFKreload, "afkreload"));
+
+            Commands.ChatCommands.Add(new Command("afk.cfg", AFKreload, "afkreload")
+            {
+                AllowServer = true,
+                HelpText = "Reloads from config file"
+            });
 
             if (AFKConfig.afkwarp)
             {
-                Commands.ChatCommands.Add(new Command("afk.comm", AFKcomm, "afktime"));
-                Commands.ChatCommands.Add(new Command("afk.comm", sendafk, "afk"));
-                Commands.ChatCommands.Add(new Command("afk.comm", sendback, "return"));
-                Commands.ChatCommands.Add(new Command("afk.cfg", setwarptime, "afkwarptime"));
+                Commands.ChatCommands.Add(new Command("afk.comm", AFKcomm, "afktime")
+                {
+                    AllowServer = false,
+                    HelpText = "Provide details about AFK status"
+                });
+                Commands.ChatCommands.Add(new Command("afk.comm", sendafk, "afk")
+                {
+                    AllowServer = false,
+                    HelpText = "Manually set user as AFK"
+                });
+                Commands.ChatCommands.Add(new Command("afk.comm", sendback, "return")
+                {
+                    AllowServer = false,
+                    HelpText = "Returns user back to original location"
+                });
+                Commands.ChatCommands.Add(new Command("afk.cfg", setwarptime, "afkwarptime")
+                {
+                    AllowServer = true,
+                    HelpText = "Temporarily change the AFK warp time"
+                }) ;
             }
             if (AFKConfig.afkkick)
-                Commands.ChatCommands.Add(new Command("afk.cfg", setkicktime, "afkkicktime"));
+                Commands.ChatCommands.Add(new Command("afk.cfg", setkicktime, "afkkicktime")
+                {
+                    AllowServer = true,
+                    HelpText = "Temporarily change the AFK kick time"
+                });
         }
 
         public void OnGreetPlayer(GreetPlayerEventArgs e)
@@ -124,15 +149,24 @@ namespace AFK
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error in AFK config file");
+                Console.WriteLine("[AFK] Error in config file");
                 Console.ForegroundColor = ConsoleColor.Gray;
 
-                TShock.Log.ConsoleError("AFK Config Exception");
+                TShock.Log.ConsoleError("[AFK] Config File Exception");
                 TShock.Log.ConsoleError(ex.ToString());
             }
         }
 
         private DateTime LastCheck = DateTime.UtcNow;
+
+        private string ParseSeconds(int secs)
+        {
+            TimeSpan time = TimeSpan.FromSeconds(secs);
+            if (time > TimeSpan.MaxValue)
+                TShock.Log.ConsoleError("[AFK] Config time exceeds max value! Pick a smaller value.");
+            string timeOutput = string.Format("{0:D2} mins {1:D2} secs", time.Minutes, time.Seconds);
+            return timeOutput;
+        }
 
         public void OnUpdate(EventArgs e)
         {
@@ -160,10 +194,10 @@ namespace AFK
                                         player.afkkick = 0;
 
                                     if (player.afkkick == Math.Round(AFKConfig.afkkicktime * .70) || player.afkkick == Math.Round(AFKConfig.afkkicktime * .80) || player.afkkick == Math.Round(AFKConfig.afkkicktime * .90))
-                                        player.TSPlayer.SendErrorMessage("You will be kicked when you're AFK for " + AFKConfig.afkkicktime + "secs. You have been AFK for " + player.afkkick + " secs.");
+                                        player.TSPlayer.SendErrorMessage("[AFK] You will be kicked after " + ParseSeconds(AFKConfig.afkkicktime) + ". You have been AFK for " + ParseSeconds(player.afkkick));
                                     else if (player.afkkick >= AFKConfig.afkkicktime)
                                     {
-                                        player.TSPlayer.Kick("for being AFK for " + player.afkkick + " seconds.", true, false, "Server", true);
+                                        player.TSPlayer.Kick("for being AFK for " + ParseSeconds(player.afkkick), true, false, "Server", true);
                                         return;
                                     }
                                 }
@@ -194,12 +228,12 @@ namespace AFK
                                             if (afkwarp == null)
                                             {
                                                 player.TSPlayer.Kick("for being AFK.", true, false, "Server", true);
-                                                TShock.Log.ConsoleError("AFK Plugin: Warp \"afk\" is not defined.");
+                                                TShock.Log.ConsoleError("[AFK] Warp \"afk\" is not defined.");
                                                 return;
                                             }
                                             if (TShock.Regions.GetRegionByName("afk") == null)
                                             {
-                                                TShock.Log.ConsoleError("AFK Plugin: Region \"afk\" is not defined");
+                                                TShock.Log.ConsoleError("[AFK] Region \"afk\" is not defined");
                                             }
                                             
                                             if (player.TSPlayer.Teleport((int)afkwarp.Position.X * 16, (int)(afkwarp.Position.Y) * 16))
@@ -279,8 +313,8 @@ namespace AFK
         private void AFKcomm(CommandArgs args)
         {
             var AFKPly = Players[args.Player.Index];
-            TShock.Players[args.Player.Index].SendErrorMessage("You have been AFK for: " + AFKPly.afk);
-            TShock.Players[args.Player.Index].SendErrorMessage("You have been AFKkick for: " + AFKPly.afkkick);
+            TShock.Players[args.Player.Index].SendErrorMessage("You have been AFK for: " + ParseSeconds(AFKPly.afk));
+            TShock.Players[args.Player.Index].SendErrorMessage("You have been AFKkick for: " + ParseSeconds(AFKPly.afkkick));
         }
 
         private void sendafk(CommandArgs args)
@@ -289,15 +323,15 @@ namespace AFK
 
             if (AFKPly.afkspam > 0)
             {
-                args.Player.SendErrorMessage("You just used AFK a few moments ago. Please wait to use it again");
+                args.Player.SendErrorMessage("[AFK] You just left AFK a few moments ago. Please wait to use it again");
                 return;
             }
 
             var warp = TShock.Warps.Find("afk");
             if (warp == null)
             {
-                args.Player.SendErrorMessage("Unable to send you to AFK. Warp \"afk\" is not defined");
-                TShock.Log.ConsoleError("AFK Plugin: Warp \"afk\" is not defined");
+                args.Player.SendErrorMessage("[AFK] Unable to send you to AFK. Warp \"afk\" is not defined");
+                TShock.Log.ConsoleError("[AFK] Warp \"afk\" is not defined");
                 return;
             }
 
@@ -312,13 +346,13 @@ namespace AFK
                 AFKPly.afk = 0;
                 if (args.Player.Teleport((int)warp.Position.X * 16, (int)warp.Position.Y * 16))
                 {
-                    args.Player.SendErrorMessage("You have been warped to the AFK zone. Use the /return command to go back!");
+                    args.Player.SendErrorMessage("[AFK] You have been warped to the AFK zone. Use the /return command to go back!");
                     TShock.Utils.Broadcast(AFKConfig.awayMessage.Replace("{player}", args.Player.Name), Color.Yellow);
                     AFKPly.afkspam = AFKConfig.afkspam;
                 }
             }
             else
-                args.Player.SendErrorMessage("You are already in the AFK zone. No need to use /afk");
+                args.Player.SendErrorMessage("[AFK] You are already in the AFK zone. No need to use /afk");
         }
 
         private void sendback(CommandArgs args)
@@ -328,14 +362,14 @@ namespace AFK
             {
                 if (args.Player.Teleport(AFKPly.backtileX * 16, AFKPly.backtileY * 16))
                 {
-                    args.Player.SendSuccessMessage("You have been warped back to where you were!");
+                    args.Player.SendSuccessMessage("[AFK] You have been warped back to where you were!");
                     TShock.Utils.Broadcast(AFKConfig.returnMessage.Replace("{player}", args.Player.Name), Color.Yellow);
                     AFKPly.backtileX = 0;
                     AFKPly.backtileY = 0;
                 }
             }
             else
-                args.Player.SendErrorMessage("Unable to send you back from AFK.");
+                args.Player.SendErrorMessage("[AFK] Unable to send you back from AFK.");
         }
 
         private static void setwarptime(CommandArgs args)
@@ -365,24 +399,6 @@ namespace AFK
             SetupConfig();
             TShock.Log.ConsoleInfo("AFK Reload Initiated");
             args.Player.SendSuccessMessage("AFk Reload Initiated");
-        }
-
-        public static List<Group> FindGroup(string grp)
-        {
-            var found = new List<Group>();
-            grp = grp.ToLower();
-            foreach (Group group in TShock.Groups.groups)
-            {
-                if (group == null)
-                    continue;
-
-                string name = group.Name.ToLower();
-                if (name.Equals(grp))
-                    return new List<Group> { group };
-                if (name.Contains(grp))
-                    found.Add(group);
-            }
-            return found;
         }
     }
 }
