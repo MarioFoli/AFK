@@ -11,6 +11,12 @@ Commands
 * `/afkkicktime <seconds>` - Temporarily changes the duration of when a player is kicked from being afk
 * `/afkreload` - reloads the AFK config file
 
+Permissions
+-----
+* `afk.comm` - Gives players access to /afk, /afktime, and /return
+* `afk.cfg` - Gives users access to /afkwarptime, /afkkicktime, and /afkreload
+* `afk.nokick` - Prevents users from being kicked or receiving kick messages
+
 Config File (AFKconfig.json)
 -------
 ```
