@@ -1,20 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AFK", "AFK\AFK.csproj", "{B4508ACE-5103-4B55-A888-69DB2312BFEE}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AFK", "AFK\AFK.csproj", "{B4508ACE-5103-4B55-A888-69DB2312BFEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Debug|x64.ActiveCfg = Debug|x64
+		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Debug|x64.Build.0 = Debug|x64
 		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Release|x64.ActiveCfg = Release|x64
+		{B4508ACE-5103-4B55-A888-69DB2312BFEE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9DFBB70B-43EA-4535-8179-5B505B5832B3}
 	EndGlobalSection
 EndGlobal
